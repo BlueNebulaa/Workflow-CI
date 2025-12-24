@@ -7,7 +7,7 @@ import random
 from sklearn.metrics import accuracy_score
 import numpy as np
 
-df = pd.read_csv("../data_clean/data_clean.csv")
+df = pd.read_csv("./data_clean/data_clean.csv")
 
 y=df['Heart Disease']
     
