@@ -1,45 +1,44 @@
-name: MLflow CI Training
+name: MLflow CI Workflow
 
 on:
   push:
-    branches: ["main"]
-  workflow_dispatch:
+    branches: [ main ]
 
 jobs:
-  train:
+  train-and-build:
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v3
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v4
         with:
-          python-version: "3.10"
+          python-version: '3.9'
 
-      - name: Install dependencies
+      - name: Install Dependencies
         run: |
-          pip install mlflow scikit-learn pandas matplotlib dagshub
+          pip install mlflow pandas scikit-learn docker
 
-      - name: Run MLflow Project
+      - name: Run MLflow Training
         run: |
-          export MLFLOW_TRACKING_URI=sqlite:///mlflow.db
-          mlflow run MLProject --env-manager=local
-
-      - name: Upload MLflow Artifacts
+          cd MLProject
+          mlflow run . --no-conda # Menggunakan environment lokal runner untuk kecepatan
+        
+      - name: Archive Model Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: mlruns
-          path: mlruns
+          name: trained-model
+          path: mlruns/
 
-      - name: Login Docker Hub
-        run: |
-          echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build Docker Image
+      - name: Build and Push MLflow Docker Image
         run: |
-          mlflow build-docker MLProject -n ${{ secrets.DOCKERHUB_USERNAME }}/mlflow-logreg
-
-      - name: Push Docker Image
-        run: |
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/mlflow-logreg
+          # Perintah untuk build docker image dari model mlflow
+          mlflow models build-docker -m "runs:/$(ls -t mlruns/0 | head -n 1)/model" -n "username_kamu/ml-model:latest"
+          docker push username_kamu/ml-model:latest
