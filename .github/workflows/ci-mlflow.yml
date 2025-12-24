@@ -23,7 +23,7 @@ jobs:
       - name: Run MLflow Training
         run: |
           cd MLProject
-          mlflow run . --no-conda # Menggunakan environment lokal runner untuk kecepatan
+          mlflow run . --env-manager local
         
       - name: Archive Model Artifacts
         uses: actions/upload-artifact@v4
