@@ -41,7 +41,7 @@ jobs:
         run: |
           # 1. Cari RUN_ID secara otomatis dari folder mlruns
           # Kita gunakan find untuk mencari folder 'model' di dalam direktori MLProject/mlruns
-          MODEL_PATH=$(find MLProject/mlruns/0 -name "model" -type d | head -n 1)
+          MODEL_PATH=$(find MLProject/mlruns/1 -name "model" -type d | head -n 1)
           
           echo "Model ditemukan di: $MODEL_PATH"
           
