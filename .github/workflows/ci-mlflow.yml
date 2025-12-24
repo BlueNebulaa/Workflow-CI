@@ -42,25 +42,27 @@ jobs:
 
       - name: Build and Push MLflow Docker Image
         run: |
-          # PERBAIKAN UTAMA: Mencari folder 'model' secara rekursif di seluruh direktori
-          # Ini menghindari hardcoding path 'mlruns/0/...' yang sering berubah ID-nya
-          MODEL_PATH=$(find . -type d -name "model" | grep "artifacts/model" | head -n 1)
+          # 1. Cari direktori yang berisi file 'MLmodel'
+          # MLflow mendeteksi folder model berdasarkan keberadaan file MLmodel di dalamnya
+          MODEL_PATH=$(find . -name "MLmodel" -exec dirname {} \; | head -n 1)
           
           echo "Path model ditemukan: $MODEL_PATH"
           
           if [ -z "$MODEL_PATH" ]; then
-            echo "Error: Folder model tidak ditemukan sama sekali!"
-            echo "Struktur folder saat ini:"
+            echo "Error: File MLmodel tidak ditemukan di seluruh direktori!"
             ls -R
             exit 1
           fi
 
-          # Build Docker Image menggunakan path fisik hasil 'find'
-          # Kita gunakan --install-mlflow agar container bisa menjalankan modelnya
+          # 2. Login ke Docker Hub
+          echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+          
+          # 3. Build Docker Image menggunakan path yang ditemukan
+          # Pastikan penamaan image menggunakan username Docker Hub kamu
           mlflow models build-docker \
             -m "$MODEL_PATH" \
             -n "${{ secrets.DOCKERHUB_USERNAME }}/heart-disease-model:latest" \
             --install-mlflow
 
-          # Push ke Docker Hub
+          # 4. Push ke Docker Hub
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/heart-disease-model:latest
