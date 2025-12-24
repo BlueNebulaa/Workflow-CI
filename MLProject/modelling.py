@@ -13,7 +13,7 @@ dagshub.init(
     mlflow=True
 )
 
-df = pd.read_csv("/home/pai/Downloads/msml/WorkflowCI/MLProject/data_clean/data_clean.csv")
+df = pd.read_csv("../data_clean/data_clean.csv")
 
 y=df['Heart Disease']
     
