@@ -21,10 +21,17 @@ jobs:
       - name: Install MLflow
         run: |
           pip install mlflow
+        
+      - name: Setup Miniconda
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          auto-update-conda: true
+          python-version: 3.10
+
 
       - name: Run MLflow Project (Training)
         run: |
-          mlflow run MLProject --env-manager=virtualenv
+          mlflow run MLProject 
 
       - name: Upload MLflow Artifacts
         uses: actions/upload-artifact@v4
