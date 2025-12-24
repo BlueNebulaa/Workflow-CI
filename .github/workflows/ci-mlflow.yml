@@ -40,8 +40,8 @@ jobs:
       - name: Build and Push MLflow Docker Image
         run: |
           # 1. Cari RUN_ID secara otomatis dari folder mlruns
-          # Kita gunakan find untuk mencari folder 'model' di dalam direktori MLProject_Folder/mlruns
-          MODEL_PATH=$(find MLProject_Folder/mlruns/0 -name "model" -type d | head -n 1)
+          # Kita gunakan find untuk mencari folder 'model' di dalam direktori MLProject/mlruns
+          MODEL_PATH=$(find MLProject/mlruns/0 -name "model" -type d | head -n 1)
           
           echo "Model ditemukan di: $MODEL_PATH"
           
