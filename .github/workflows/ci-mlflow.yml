@@ -19,7 +19,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install -r requirements.txt
+          pip install mlflow scikit-learn pandas matplotlib dagshub
 
       - name: Run MLflow Project
         run: |
