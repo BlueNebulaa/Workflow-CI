@@ -10,44 +10,34 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.10"
 
-      - name: Install MLflow
+      - name: Install dependencies
         run: |
-          pip install mlflow
-        
-      - name: Setup Miniconda
-        uses: conda-incubator/setup-miniconda@v3
-        with:
-          auto-update-conda: true
-          python-version: 3.10
+          pip install mlflow scikit-learn pandas matplotlib
 
-
-      - name: Run MLflow Project (Training)
+      - name: Run MLflow Project
         run: |
-          mlflow run MLProject 
+          mlflow run MLProject --env-manager=local
 
       - name: Upload MLflow Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: mlflow-artifacts
+          name: mlruns
           path: mlruns
 
       - name: Login Docker Hub
         run: |
-          echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login \
-            -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+          echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
 
-      - name: Build Docker Image with MLflow
+      - name: Build Docker Image
         run: |
-          mlflow build-docker MLProject \
-            -n ${{ secrets.DOCKERHUB_USERNAME }}/mlflow-logreg
+          mlflow build-docker MLProject -n ${{ secrets.DOCKERHUB_USERNAME }}/mlflow-logreg
 
       - name: Push Docker Image
         run: |
